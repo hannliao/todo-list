@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todos</title>
+</head>
+<body>
+    <div id="sidebar"></div>
+    <main id="main"></main>
+
+    <dialog>
+        <div id="modal">
+            <div id="modal-header"></div>
+            <form id="form" action="dialog">
+                <div class="form-row">
+                    <label for="title"></label>
+                    <input type="text" id="title" placeholder="title">
+                </div>
+                <div id="project-specific">
+                    <div class="form-row">
+                        <label for="color">select color:</label>
+                        <input type="color" id="color" value="#ff0000">
+                    </div>
+                </div>
+                <div id="task-specific">
+                    <div class="form-row">
+                        <label for="description"></label>
+                        <textarea id="description" placeholder="description" rows="3" cols="20"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <label for="dueDate"></label>
+                        <input type="date" id="dueDate">
+                    </div>
+                    <div class="form-row">
+                        <select id="priority">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row buttons">
+                    <button type="button" id="cancel">cancel</button>
+                    <button type="submit" id="add">add</button>
+                </div>
+            </form>
+        </div>
+    </dialog>
+
+</body>
+</html>

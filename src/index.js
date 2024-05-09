@@ -7,7 +7,7 @@ import * as dom from "./dom.js"
 const hannah = new Profile();
 
 // add some projects and tasks manually
-const personal = new Project("personal", "rgb(136, 117, 96)");
+const personal = new Project("personal", "rgb(50, 140, 145)");
 const groceries = new Project("groceries", "rgb(86, 142, 64)");
 const travel = new Project("travel", "rgb(59, 146, 213)");
 
@@ -29,7 +29,7 @@ groceries.addTask(groceriesTask3);
 travel.addTask(travelTask1);
 travel.addTask(travelTask2);
 
-dom.renderMain();
 dom.renderSidebar();
+dom.renderMain("personal");
 
 export { hannah };

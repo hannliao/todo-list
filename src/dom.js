@@ -1,118 +1,63 @@
-import Task from "./tasks.js"
-import { Project, Profile } from "./projects.js"
 import { hannah } from "./index.js"
-
-class Modal {
-    constructor() {
-        this.dialog = document.querySelector("dialog");
-        this.header = document.querySelector("#modal-header");
-        this.form = document.querySelector("#form");
-        this.title = document.querySelector("#title");
-        this.color = document.querySelector("#color");
-        this.description = document.querySelector("#description");
-        this.dueDate = document.querySelector("#dueDate");
-        this.priority = document.querySelector("#priority");
-        this.cancelButton = document.querySelector("#cancel");
-        this.addButton = document.querySelector("#add");
-        this.projectSpecificDiv = document.querySelector("#project-specific");
-        this.taskSpecificDiv = document.querySelector("#task-specific");
-
-        this.form.addEventListener("submit", this.handleSubmit.bind(this));
-    }
-
-    openModal() {
-        this.dialog.showModal();
-    }
-
-    closeModal() {
-        this.form.reset();
-        this.dialog.close();
-    }
-
-    showProjectForm() {
-        this.taskSpecificDiv.style.display = "none";
-        this.projectSpecificDiv.style.display = "block";
-    }
-
-    showTaskForm() {
-        this.taskSpecificDiv.style.display = "block";
-        this.projectSpecificDiv.style.display = "none";
-    }
-
-    handleSubmit(event) {
-        event.preventDefault();
-        if (this.projectSpecificDiv.style.display === "block") {
-            this.addProject();
-        } else if (this.taskSpecificDiv.style.display === "block") {
-            this.addTask();
-        }
-    }
-
-    addProject() {
-        const title = this.title.value;
-        const color = this.color.value;
-        if (!title || !color) {
-            console.log("can't create empty project");
-            return;
-        }
-        const newProject = new Project(title, color);
-        hannah.addProject(newProject);
-        renderSidebar();
-        this.closeModal();
-    }
-
-    addTask() {
-        const title = this.title.value;
-        const description = this.description.value;
-        const dueDate = this.dueDate.value;
-        const priority = this.priority.value;
-        
-        const newTask = new Task(title, description, dueDate, priority);
-        const project = hannah.getProject(selectedProject);
-        project.addTask(newTask);
-        renderMain(selectedProject);
-        this.closeModal();
-    }
-}
+import { Modal } from "./modal.js"
+import Trash from "./trash-outline.svg"
+import Plus from "./add.svg"
 
 const modal = new Modal();
 let selectedProject = "personal";
 
+const createTrash = () => {
+    const trashIconButton = document.createElement("button");
+    const trashIcon = document.createElement("img");
+    trashIcon.src = Trash;
+    trashIconButton.classList.add("trash-icon");
+    trashIconButton.appendChild(trashIcon);
+    return trashIconButton;
+}
 
 const renderSidebar = () => {
     const sidebar = document.querySelector("#sidebar");
-    sidebar.textContent = "";
 
-    const view = document.createElement("h2");
-    view.textContent = "view";
-
-    const all = document.createElement("button");
-    all.textContent = "all";
-
-    const important = document.createElement("button");
-    important.textContent = "important";
-
+    const all = sidebar.querySelector("button");
     all.addEventListener("click", () => {
         renderMain("all");
-    })
+        selectedProject = "personal";
+    });
 
+    const important = sidebar.querySelectorAll("button")[1];
     important.addEventListener("click", () => {
         renderMain("important");
-    })
+        selectedProject = "personal";
+    });
 
-    const projectsHeader = document.createElement("h2");
-    projectsHeader.textContent = "projects";
+    const projectsHeaderDiv = sidebar.querySelector(".projects-header");
+    const addProjectButton = projectsHeaderDiv.querySelector("button");
+    addProjectButton.textContent = "";
 
-    const projects = document.createElement("div");
-    projects.classList.add("projects");
+    const plusIcon = document.createElement("img");
+    plusIcon.src = Plus;
+    plusIcon.classList.add("plus-icon");
+    addProjectButton.appendChild(plusIcon);
 
-    // render project names as buttons that navigate to each project page
+    addProjectButton.addEventListener("click", () => {
+        modal.openModal();
+        modal.showProjectForm();
+    });
+
+    renderProjects();
+}
+
+const renderProjects = () => {
+    const projects = document.querySelector(".projects");
+    projects.textContent = "";
+
     const projectButtons = [];
 
     for (const p of hannah.getAllProjects()) {
         const projectButton = document.createElement("button");
         projectButton.textContent = p.getTitle();
         projectButton.style.color = p.getColor();
+
         projects.appendChild(projectButton);
         projectButtons.push(projectButton);
     }
@@ -123,48 +68,92 @@ const renderSidebar = () => {
             selectedProject = buttonText;
         });
     });
-
-    const addProjectButton = document.createElement("button");
-    addProjectButton.textContent = "+ add project";
-    addProjectButton.addEventListener("click", () => {
-        modal.openModal();
-        modal.showProjectForm();
-    });
-
-    sidebar.append(view, all, important, projectsHeader, projects, addProjectButton);
 }
 
-const renderMain = (projectTitle = "") => {
+const renderMain = (projectTitle) => {
+    const project = hannah.getProject(projectTitle);
+
     const showTasks = (task) => {
-        const taskDiv = document.createElement("div");
+        const taskDiv = document.createElement("button");
         taskDiv.classList.add("task");
+
+        const showTaskDetails = (task) => {
+            const taskDetails = document.createElement("dialog");
+            taskDetails.style.width = "400px";
+            taskDetails.innerHTML = `
+                <strong>${task.getTitle()}</strong> <br>
+                ${task.getDescription()} <br>
+                due date: ${task.getDueDate()} <br>
+                priority: ${task.getPriority()}
+            `;
+
+            document.body.appendChild(taskDetails);
+            taskDetails.showModal();
+
+            const closeTaskDetails = (event) => {
+                if (taskDetails.contains(event.target)) {
+                    taskDetails.close();
+                    document.removeEventListener("click", closeTaskDetails);
+                }
+            };
+
+            document.addEventListener("click", closeTaskDetails);
+        }
+
+        taskDiv.addEventListener("click", (event) => {
+            event.stopPropagation();
+            showTaskDetails(task);
+        });
 
         const taskCircle = document.createElement("button");
         taskCircle.textContent = "";
         taskCircle.classList.add("circle");
 
+        taskCircle.addEventListener("click", (event) => {
+            event.stopImmediatePropagation();
+            if (task.getCompleted() === false) {
+                taskDiv.style.textDecoration = "line-through";
+                task.setCompleted(true);
+            } else {
+                taskDiv.style.textDecoration = "none";
+                task.setCompleted(false);
+            }
+        });
+
         const taskTitle = document.createElement("p");
         taskTitle.textContent = task.getTitle();
+        taskTitle.classList.add("task-text");
 
-        taskDiv.append(taskCircle, taskTitle);
+        const taskTrash = createTrash();
+        if (projectTitle === "all" || projectTitle === "important") {
+            taskTrash.style.display = "none";
+        } else {
+            taskTrash.addEventListener("click", (event) => {
+                event.stopPropagation();
+                project.removeTask(task);
+                renderMain(projectTitle);
+            });
+        }
+
+        taskDiv.append(taskCircle, taskTitle, taskTrash);
         tasks.appendChild(taskDiv);
     }
 
-    const main = document.querySelector("#main");
-    main.textContent = "";
 
-    const mainHeader = document.createElement("h1");
-    if (projectTitle == "important") {
+    const main = document.querySelector("main");
+
+    const mainHeader = main.querySelector("h1");
+    if (projectTitle === "important") {
         mainHeader.textContent = "important";
-    } else if (projectTitle) {
-        mainHeader.textContent = projectTitle;
-    } else {
+    } else if (projectTitle === "all") {
         mainHeader.textContent = "all";
+    } else {
+        mainHeader.style.color = project.getColor();
+        mainHeader.textContent = projectTitle;
     }
-    
 
-    const tasks = document.createElement("div");
-    tasks.classList.add("tasks");
+    const tasks = main.querySelector(".tasks");
+    tasks.textContent = "";
 
     const allProjects = hannah.getAllProjects();
 
@@ -184,25 +173,20 @@ const renderMain = (projectTitle = "") => {
             });
         });
     } else { // render all tasks
-        const project = hannah.getProject(projectTitle);
         project.getTasks().forEach((task) => {
             showTasks(task);
         });
     };
 
-    const addTaskButton = document.createElement("button");
-    addTaskButton.textContent = "+ add task";
-    addTaskButton.classList.add("addTaskButton");
+    const addTaskButton = main.querySelector(".addTaskButton");
     addTaskButton.addEventListener("click", () => {
         modal.openModal();
         modal.showTaskForm();
     });
-
-    main.append(mainHeader, tasks, addTaskButton);
 }
 
 modal.cancelButton.addEventListener("click", () => {
     modal.closeModal();
 });
 
-export { renderSidebar, renderMain };
+export { renderSidebar, renderMain , selectedProject};

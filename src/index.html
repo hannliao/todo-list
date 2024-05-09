@@ -1,13 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Todos</title>
 </head>
+
 <body>
-    <div id="sidebar"></div>
-    <main id="main"></main>
+    <div id="header">
+        <h1>to-do list</h1>
+    </div>
+
+    <div id="sidebar">
+        <h2>view</h2>
+        <button>all</button>
+        <button>important</button>
+        <div class="projects-header">
+            <h2>projects</h2>
+            <button></button>
+        </div>
+        <div class="projects"></div>
+    </div>
+
+    <main id="main">
+        <h1></h1>
+        <div class="tasks"></div>
+        <button class="addTaskButton">+ add task</button>
+    </main>
 
     <dialog>
         <div id="modal">
@@ -19,25 +39,30 @@
                 </div>
                 <div id="project-specific">
                     <div class="form-row">
-                        <label for="color">select color:</label>
-                        <input type="color" id="color" value="#ff0000">
+                        <label for="color">select project color</label>
+                        <input type="color" id="color" value="#000000">
                     </div>
                 </div>
                 <div id="task-specific">
                     <div class="form-row">
                         <label for="description"></label>
-                        <textarea id="description" placeholder="description" rows="3" cols="20"></textarea>
+                        <textarea id="description" placeholder="description" rows="3" cols="50"></textarea>
                     </div>
                     <div class="form-row">
-                        <label for="dueDate"></label>
-                        <input type="date" id="dueDate">
-                    </div>
-                    <div class="form-row">
-                        <select id="priority">
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                        </select>
+                        <div>
+                            <label for="dueDate">due date</label>
+                            <input type="date" id="dueDate">
+                        </div>
+
+                        <div>
+                            <label for="priority">priority</label>
+                            <select id="priority">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                            </select>
+                        </div>
+
                     </div>
                 </div>
                 <div class="form-row buttons">
@@ -49,4 +74,5 @@
     </dialog>
 
 </body>
+
 </html>

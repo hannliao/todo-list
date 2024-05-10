@@ -35,7 +35,7 @@
             <form id="form" action="dialog">
                 <div class="form-row">
                     <label for="title"></label>
-                    <input type="text" id="title" placeholder="title">
+                    <input type="text" id="title" placeholder="title" minlength="1" required>
                 </div>
                 <div id="project-specific">
                     <div class="form-row">
@@ -57,9 +57,9 @@
                         <div>
                             <label for="priority">priority</label>
                             <select id="priority">
-                                <option value="1">1</option>
-                                <option value="2">2</option>
-                                <option value="3">3</option>
+                                <option value="high">high</option>
+                                <option value="medium">medium</option>
+                                <option value="low" selected>low</option>
                             </select>
                         </div>
 

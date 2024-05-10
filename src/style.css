@@ -2,9 +2,12 @@
     --bg-gray: #f3f4f4;
     --hover-gray: #ecefef;
     --border-gray: #b7b7b7;
+    --font-gray: #5c5c5c;
     --default: rgb(50, 140, 145);
     --green: rgb(86, 142, 64);
     --blue: rgb(59, 146, 213);
+    --hotpink: rgb(245, 94, 127);
+    --lightpink: rgb(255, 194, 207);
 }
 
 @font-face {
@@ -30,7 +33,7 @@
 
 body {
     display: grid;
-    grid-template-columns: 300px auto;
+    grid-template-columns: 300px minmax(auto, 1fr);
     grid-template-rows: auto 1fr;
     height: 100vh;
 }
@@ -95,11 +98,11 @@ button:hover {
 }
 
 #main {
-    height: 85%;
+    height: 90%;
     display: grid;
     grid-template-rows: 100px 1fr auto;
-    margin: 50px auto;
-    width: clamp(500px, 60vw, 1500px);
+    padding: 50px;
+    margin: 0 auto;
 }
 
 #main h1 {
@@ -113,6 +116,7 @@ button:hover {
 }
 
 .task {
+    position: relative;
     display: flex;
     padding: 20px 40px;
     margin-bottom: 10px;
@@ -121,6 +125,9 @@ button:hover {
     border: 1px solid var(--border-gray);
     border-radius: 10px;
     align-items: center;
+    min-width: 700px;
+    max-width: 1200px;
+    width: 60vw;
 }
 
 .circle {
@@ -135,6 +142,25 @@ button:hover {
 .task-text {
     flex: 1;
     text-align: left;
+}
+
+.task-date {
+    width: 80px;
+    padding: 6px 0;
+    font-size: 14px;
+    position: absolute;
+    right: 200px;
+    color: var(--font-gray);
+    background-color: var(--bg-gray);
+    border: 1px solid var(--border-gray);
+    border-radius: 10px;
+}
+
+.flag-icon {
+    width: 25px;
+    height: 25px;
+    position: absolute;
+    right: 150px;
 }
 
 .trash-icon {
@@ -155,6 +181,7 @@ button:hover {
     border: 1px dashed var(--border-gray);
     border-radius: 10px;
     font-size: 18px;
+    color: var(--font-gray);
 }
 
 dialog {

@@ -1,3 +1,4 @@
+import { format } from "date-fns"
 import { hannah } from "./index.js"
 import { Modal } from "./modal.js"
 import Trash from "./trash-outline.svg"
@@ -6,13 +7,8 @@ import Plus from "./add.svg"
 const modal = new Modal();
 let selectedProject = "personal";
 
-const createTrash = () => {
-    const trashIconButton = document.createElement("button");
-    const trashIcon = document.createElement("img");
-    trashIcon.src = Trash;
-    trashIconButton.classList.add("trash-icon");
-    trashIconButton.appendChild(trashIcon);
-    return trashIconButton;
+const formatDate = (date) => {
+    return format(date, "LLL dd");
 }
 
 const renderSidebar = () => {
@@ -70,82 +66,113 @@ const renderProjects = () => {
     });
 }
 
-const renderMain = (projectTitle) => {
-    const project = hannah.getProject(projectTitle);
+const getFlagColor = (priority) => {
+    if (priority === "high") {
+        return "rgb(245, 94, 127)";
+    } else if (priority === "medium") {
+        return "rgb(255, 194, 207)";
+    } else {
+        return "transparent";
+    }
+}
 
-    const showTasks = (task) => {
-        const taskDiv = document.createElement("button");
-        taskDiv.classList.add("task");
+const showTask = (task, project) => {
+    const taskDiv = document.createElement("button");
+    taskDiv.classList.add("task");
 
-        const showTaskDetails = (task) => {
-            const taskDetails = document.createElement("dialog");
-            taskDetails.style.width = "400px";
-            taskDetails.innerHTML = `
-                <strong>${task.getTitle()}</strong> <br>
-                ${task.getDescription()} <br>
-                due date: ${task.getDueDate()} <br>
-                priority: ${task.getPriority()}
-            `;
+    taskDiv.addEventListener("click", (event) => {
+        showTaskDetails(task);
+    });
 
-            document.body.appendChild(taskDetails);
-            taskDetails.showModal();
+    const taskCircle = document.createElement("button");
+    taskCircle.textContent = "";
+    taskCircle.classList.add("circle");
 
-            const closeTaskDetails = (event) => {
-                if (taskDetails.contains(event.target)) {
-                    taskDetails.close();
-                    document.removeEventListener("click", closeTaskDetails);
-                }
-            };
-
-            document.addEventListener("click", closeTaskDetails);
-        }
-
-        taskDiv.addEventListener("click", (event) => {
-            event.stopPropagation();
-            showTaskDetails(task);
-        });
-
-        const taskCircle = document.createElement("button");
-        taskCircle.textContent = "";
-        taskCircle.classList.add("circle");
-
-        taskCircle.addEventListener("click", (event) => {
-            event.stopImmediatePropagation();
-            if (task.getCompleted() === false) {
-                taskDiv.style.textDecoration = "line-through";
-                task.setCompleted(true);
-            } else {
-                taskDiv.style.textDecoration = "none";
-                task.setCompleted(false);
-            }
-        });
-
-        const taskTitle = document.createElement("p");
-        taskTitle.textContent = task.getTitle();
-        taskTitle.classList.add("task-text");
-
-        const taskTrash = createTrash();
-        if (projectTitle === "all" || projectTitle === "important") {
-            taskTrash.style.display = "none";
+    taskCircle.addEventListener("click", (event) => {
+        event.stopPropagation();
+        if (task.getCompleted() === false) {
+            taskDiv.style.textDecoration = "line-through";
+            task.setCompleted(true);
         } else {
-            taskTrash.addEventListener("click", (event) => {
-                event.stopPropagation();
-                project.removeTask(task);
-                renderMain(projectTitle);
-            });
+            taskDiv.style.textDecoration = "none";
+            task.setCompleted(false);
         }
+    });
 
-        taskDiv.append(taskCircle, taskTitle, taskTrash);
-        tasks.appendChild(taskDiv);
+    const taskTitle = document.createElement("p");
+    taskTitle.textContent = task.getTitle();
+    taskTitle.classList.add("task-text");
+
+    const taskDate = document.createElement("div");
+    taskDate.textContent = formatDate(task.getDueDate());
+    taskDate.classList.add("task-date");
+
+    const svgFlag = `<svg id="flag" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+        <path d="M80 480a16 16 0 01-16-16V68.13a24 24 0 0111.9-20.72C88 40.38 112.38 32 160 32c37.21 0 78.83 14.71 115.55 27.68C305.12 
+        70.13 333.05 80 352 80a183.84 183.84 0 0071-14.5 18 18 0 0125 16.58v219.36a20 20 0 01-12 18.31c-8.71 3.81-40.51 16.25-84 
+        16.25-24.14 0-54.38-7.14-86.39-14.71C229.63 312.79 192.43 304 160 304c-36.87 0-55.74 5.58-64 9.11V464a16 16 0 01-16 16z"/></svg>`;
+
+    const taskFlag = document.createElement("div");
+    taskFlag.innerHTML = svgFlag.trim();
+    const flagElement = taskFlag.querySelector("#flag");
+    flagElement.setAttribute("fill", getFlagColor(task.getPriority()));
+    taskFlag.classList.add("flag-icon");
+
+    const taskTrash = document.createElement("button");
+    const trashIcon = document.createElement("img");
+    trashIcon.src = Trash;
+    taskTrash.appendChild(trashIcon);
+    taskTrash.classList.add("trash-icon");
+
+    if (project.getTitle() === "all" || project.getTitle() === "important") {
+        taskTrash.style.display = "none";
+    } else {
+        taskTrash.addEventListener("click", (event) => {
+            event.stopPropagation();
+            project.removeTask(task);
+            renderMain(project.getTitle());
+        });
     }
 
+    if (task.getCompleted() === true) {
+        taskDiv.style.textDecoration = "line-through";
+    }
 
+    taskDiv.append(taskCircle, taskTitle, taskDate, taskFlag, taskTrash);
+    return taskDiv;
+}
+
+const showTaskDetails = (task) => {
+    const taskDetails = document.createElement("dialog");
+    taskDetails.style.width = "370px";
+    taskDetails.innerHTML = `
+        <strong>${task.getTitle()}</strong> <br><br>
+        ${task.getDescription()} <br><br>
+        due date: ${formatDate(task.getDueDate())} &emsp;&emsp; priority: ${task.getPriority()}
+    `;
+
+    document.body.appendChild(taskDetails);
+    taskDetails.showModal();
+
+    const closeTaskDetails = (event) => {
+        if (taskDetails.contains(event.target)) {
+            taskDetails.close();
+            document.removeEventListener("click", closeTaskDetails);
+        }
+    };
+    document.addEventListener("click", closeTaskDetails);
+}
+
+const renderMain = (projectTitle) => {
     const main = document.querySelector("main");
+    const project = hannah.getProject(projectTitle);
 
     const mainHeader = main.querySelector("h1");
     if (projectTitle === "important") {
+        mainHeader.style.color = "black";
         mainHeader.textContent = "important";
     } else if (projectTitle === "all") {
+        mainHeader.style.color = "black";
         mainHeader.textContent = "all";
     } else {
         mainHeader.style.color = project.getColor();
@@ -161,20 +188,20 @@ const renderMain = (projectTitle) => {
     if (projectTitle === "" || projectTitle == "all") {
         allProjects.forEach((project) => {
             project.getTasks().forEach((task) => {
-                showTasks(task);
+                tasks.appendChild(showTask(task, project));
             });
         });
     } else if (projectTitle == "important") {
         allProjects.forEach((project) => {
             project.getTasks().forEach((task) => {
-                if (task.getPriority() == 1) {
-                    showTasks(task);
+                if (task.getPriority() == "high") {
+                    tasks.appendChild(showTask(task, project));
                 }
             });
         });
     } else { // render all tasks
         project.getTasks().forEach((task) => {
-            showTasks(task);
+            tasks.appendChild(showTask(task, project));
         });
     };
 
@@ -189,4 +216,4 @@ modal.cancelButton.addEventListener("click", () => {
     modal.closeModal();
 });
 
-export { renderSidebar, renderMain , selectedProject};
+export { renderSidebar, renderMain, selectedProject };

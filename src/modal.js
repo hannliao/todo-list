@@ -1,7 +1,7 @@
 import * as dom from "./dom.js"
 import Task from "./tasks.js"
 import { Project } from "./projects.js"
-import { hannah } from "./index.js"
+import { hannah, localToday } from "./index.js"
 
 export class Modal {
     constructor() {
@@ -66,9 +66,9 @@ export class Modal {
     addTask() {
         const title = this.title.value;
         const description = this.description.value;
-        const dueDate = this.dueDate.value;
+        const dueDate = this.dueDate.value ? this.dueDate.value : localToday;
         const priority = this.priority.value;
-        
+
         const newTask = new Task(title, description, dueDate, priority);
         const project = hannah.getProject(dom.selectedProject);
         project.addTask(newTask);

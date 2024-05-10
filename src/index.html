@@ -24,7 +24,16 @@
     </div>
 
     <main id="main">
-        <h1></h1>
+        <div class="main-header">
+            <h1 id="main-title"></h1>
+            <div class="more-options">
+                <button class="ellipsis-icon"></button>
+                <div class="options">
+                    <button class="edit">edit</button>
+                    <button class="del">delete</button>
+                </div>
+            </div>
+        </div>
         <div class="tasks"></div>
         <button class="addTaskButton">+ add task</button>
     </main>
@@ -67,7 +76,7 @@
                 </div>
                 <div class="form-row buttons">
                     <button type="button" id="cancel">cancel</button>
-                    <button type="submit" id="add">add</button>
+                    <button type="submit" id="submit">add</button>
                 </div>
             </form>
         </div>

@@ -3,11 +3,11 @@
     --hover-gray: #ecefef;
     --border-gray: #b7b7b7;
     --font-gray: #5c5c5c;
-    --default: rgb(50, 140, 145);
-    --green: rgb(86, 142, 64);
-    --blue: rgb(59, 146, 213);
-    --hotpink: rgb(245, 94, 127);
-    --lightpink: rgb(255, 194, 207);
+    --default: #328c91;
+    --green: #568e40;
+    --blue: #3b92d5;
+    --hotpink: #f55e7f;
+    --lightpink: #ffc2cf;
 }
 
 @font-face {
@@ -92,11 +92,6 @@ body {
     background-color: var(--hover-gray);
 }
 
-button:hover { 
-    cursor: pointer;
-    background-color: var(--hover-gray);
-}
-
 #main {
     height: 90%;
     display: grid;
@@ -105,14 +100,57 @@ button:hover {
     margin: 0 auto;
 }
 
-#main h1 {
-    margin-bottom: 30px;
+.main-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 50px;
+}
+
+.more-options {
+    position: relative;
+}
+
+.ellipsis-icon {
+    width: 50px;
+    height: 50px;
+    background-color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.ellipsis-icon:focus {
+    background-color: var(--hover-gray);
+}
+
+.options {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 60px;
+    height: 60px;
+    border: 1px solid var(--border-gray);
+    overflow: hidden;
+    border-radius: 10px;
+    display: none;
+    align-items: flex-end;
+}
+
+.options button {
+    background-color: white;
+    border: none;
+    width: 100%;
+    height: 50%;
 }
 
 .tasks {
     display: flex;
     flex-direction: column;
     background-color: white;
+    margin-top: 30px;
 }
 
 .task {
@@ -169,6 +207,11 @@ button:hover {
     border: none;
     background-color: transparent;
     display: none;
+}
+
+.trash-icon:hover {
+    width: 27px;
+    height: 27px;
 }
 
 .task:hover .trash-icon{
@@ -249,4 +292,9 @@ form * {
     border-radius: 5px;
     padding: 10px 20px;
     margin: 6px;
+}
+
+button:hover { 
+    cursor: pointer;
+    background-color: var(--hover-gray);
 }

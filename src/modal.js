@@ -43,7 +43,7 @@ export class Modal {
     handleSubmit(event) {
         event.preventDefault();
         if (this.projectSpecificDiv.style.display === "block") {
-            this.addProject();
+            this.title.value ? this.editProject() : this.addProject();
         } else if (this.taskSpecificDiv.style.display === "block") {
             this.addTask();
         }
@@ -74,6 +74,20 @@ export class Modal {
         project.addTask(newTask);
 
         dom.renderMain(dom.selectedProject);
+        this.closeModal();
+    }
+
+    editProject() {
+        const projectTitle = document.querySelector("#main-title").textContent;
+        const project = hannah.getProject(projectTitle);
+
+        const title = this.title.value;
+        const color = this.color.value;
+        project.setTitle(title);
+        project.setColor(color);
+
+        dom.renderSidebar();
+        dom.renderMain(title);
         this.closeModal();
     }
 }

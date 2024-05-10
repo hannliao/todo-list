@@ -3,6 +3,7 @@ import { hannah } from "./index.js"
 import { Modal } from "./modal.js"
 import Trash from "./trash-outline.svg"
 import Plus from "./add.svg"
+import Ellipsis from "./ellipsis.svg"
 
 const modal = new Modal();
 let selectedProject = "personal";
@@ -62,6 +63,7 @@ const renderProjects = () => {
             const buttonText = button.textContent;
             renderMain(buttonText);
             selectedProject = buttonText;
+            closeOptions();
         });
     });
 }
@@ -163,21 +165,63 @@ const showTaskDetails = (task) => {
     document.addEventListener("click", closeTaskDetails);
 }
 
+const toggleOptions = () => {
+    const options = document.querySelector(".options");
+    const computedStyle = window.getComputedStyle(options);
+    options.style.display = computedStyle.display === "none" ? "block" : "none";
+}
+
+const closeOptions = () => {
+    document.querySelector(".options").style.display = "none";
+}
+
 const renderMain = (projectTitle) => {
     const main = document.querySelector("main");
     const project = hannah.getProject(projectTitle);
 
+    const mainHeaderDiv = document.querySelector(".main-header");
     const mainHeader = main.querySelector("h1");
+    mainHeader.style.color = "black";
+    const ellipsisButton = mainHeaderDiv.querySelector(".ellipsis-icon");
+    ellipsisButton.style.display = "none";
+
     if (projectTitle === "important") {
-        mainHeader.style.color = "black";
         mainHeader.textContent = "important";
     } else if (projectTitle === "all") {
-        mainHeader.style.color = "black";
         mainHeader.textContent = "all";
     } else {
         mainHeader.style.color = project.getColor();
         mainHeader.textContent = projectTitle;
+
+        ellipsisButton.style.display = "block";
+        ellipsisButton.textContent = "";
+        const ellipsisIcon = document.createElement("img");
+        ellipsisIcon.src = Ellipsis;
+        ellipsisButton.appendChild(ellipsisIcon);
+
+        ellipsisButton.addEventListener("click", toggleOptions);
+
+        const edit = mainHeaderDiv.querySelector(".edit");
+        edit.addEventListener("click", () => {
+            modal.openModal();
+            modal.showProjectForm();
+            document.querySelector("#title").value = project.getTitle();
+            document.querySelector("#color").value = project.getColor();
+
+            const submitButton = document.querySelector("#submit");
+            submitButton.textContent = "edit";
+
+            closeOptions();
+        });
     }
+
+    const del = mainHeaderDiv.querySelector(".del");
+    del.addEventListener("click", () => {
+        hannah.removeProject(project);
+        renderSidebar();
+        renderMain("all");
+        closeOptions();
+    });
 
     const tasks = main.querySelector(".tasks");
     tasks.textContent = "";

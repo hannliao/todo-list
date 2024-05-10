@@ -12,9 +12,9 @@ const getLocalToday = () => {
 const hannah = new Profile();
 
 // add some projects and tasks manually
-const personal = new Project("personal", "rgb(50, 140, 145)");
-const groceries = new Project("groceries", "rgb(86, 142, 64)");
-const travel = new Project("travel", "rgb(59, 146, 213)");
+const personal = new Project("personal", "#328c91");
+const groceries = new Project("groceries", "#568e40");
+const travel = new Project("travel", "#3b92d5");
 
 hannah.addProject(personal);
 hannah.addProject(groceries);

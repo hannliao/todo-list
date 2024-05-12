@@ -1,9 +1,9 @@
-import * as dom from "./dom.js"
+import { renderProjects, renderMain, selectedProject } from "./dom.js"
 import Task from "./tasks.js"
 import { Project } from "./projects.js"
-import { hannah, localToday } from "./index.js"
+import { profile, localToday } from "./index.js"
 
-export class Modal {
+class Modal {
     constructor() {
         this.dialog = document.querySelector("dialog");
         this.header = document.querySelector("#modal-header");
@@ -43,7 +43,7 @@ export class Modal {
     handleSubmit(event) {
         event.preventDefault();
         if (this.projectSpecificDiv.style.display === "block") {
-            this.title.value ? this.editProject() : this.addProject();
+            this.addProject();
         } else if (this.taskSpecificDiv.style.display === "block") {
             this.addTask();
         }
@@ -57,9 +57,9 @@ export class Modal {
             return;
         }
         const newProject = new Project(title, color);
-        hannah.addProject(newProject);
+        profile.addProject(newProject);
 
-        dom.renderSidebar();
+        renderProjects();
         this.closeModal();
     }
 
@@ -68,26 +68,28 @@ export class Modal {
         const description = this.description.value;
         const dueDate = this.dueDate.value ? this.dueDate.value : localToday;
         const priority = this.priority.value;
+        const project = profile.getProject(selectedProject);
 
-        const newTask = new Task(title, description, dueDate, priority);
-        const project = hannah.getProject(dom.selectedProject);
+        const newTask = new Task(title, description, dueDate, priority, project);
         project.addTask(newTask);
 
-        dom.renderMain(dom.selectedProject);
+        renderMain(selectedProject);
         this.closeModal();
     }
 
     editProject() {
         const projectTitle = document.querySelector("#main-title").textContent;
-        const project = hannah.getProject(projectTitle);
+        const project = profile.getProject(projectTitle);
 
         const title = this.title.value;
         const color = this.color.value;
         project.setTitle(title);
         project.setColor(color);
 
-        dom.renderSidebar();
-        dom.renderMain(title);
+        renderProjects();
+        renderMain(title);
         this.closeModal();
     }
 }
+
+export default Modal;

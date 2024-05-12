@@ -1,56 +1,59 @@
 import { format } from "date-fns"
-import { hannah } from "./index.js"
-import { Modal } from "./modal.js"
-import Trash from "./trash-outline.svg"
-import Plus from "./add.svg"
-import Ellipsis from "./ellipsis.svg"
+import { profile } from "./index.js"
+import Modal from "./modal.js"
+import Trash from "./img/trash-outline.svg"
+import Plus from "./img/add.svg"
+import Ellipsis from "./img/ellipsis.svg"
 
 const modal = new Modal();
 let selectedProject = "personal";
 
-const formatDate = (date) => {
+function formatDate(date) {
     return format(date, "LLL dd");
 }
 
-const renderSidebar = () => {
+function createIcon(className, source) {
+    const iconButton = document.createElement("button");
+    const icon = document.createElement("img");
+    icon.src = source;
+    iconButton.appendChild(icon);
+    iconButton.classList.add(className);
+    return iconButton;
+}
+
+function renderSidebar() {
     const sidebar = document.querySelector("#sidebar");
 
     const all = sidebar.querySelector("button");
     all.addEventListener("click", () => {
         renderMain("all");
-        selectedProject = "personal";
     });
 
     const important = sidebar.querySelectorAll("button")[1];
     important.addEventListener("click", () => {
         renderMain("important");
-        selectedProject = "personal";
     });
 
     const projectsHeaderDiv = sidebar.querySelector(".projects-header");
-    const addProjectButton = projectsHeaderDiv.querySelector("button");
-    addProjectButton.textContent = "";
-
-    const plusIcon = document.createElement("img");
-    plusIcon.src = Plus;
-    plusIcon.classList.add("plus-icon");
-    addProjectButton.appendChild(plusIcon);
+    const addProjectButton = createIcon("plus-icon", Plus);
 
     addProjectButton.addEventListener("click", () => {
         modal.openModal();
         modal.showProjectForm();
     });
 
+    projectsHeaderDiv.appendChild(addProjectButton);
+
     renderProjects();
 }
 
-const renderProjects = () => {
+function renderProjects() {
     const projects = document.querySelector(".projects");
     projects.textContent = "";
 
     const projectButtons = [];
 
-    for (const p of hannah.getAllProjects()) {
+    for (const p of profile.getAllProjects()) {
         const projectButton = document.createElement("button");
         projectButton.textContent = p.getTitle();
         projectButton.style.color = p.getColor();
@@ -68,17 +71,17 @@ const renderProjects = () => {
     });
 }
 
-const getFlagColor = (priority) => {
+function getFlagColor(priority) {
     if (priority === "high") {
-        return "rgb(245, 94, 127)";
+        return "#f55e7f";
     } else if (priority === "medium") {
-        return "rgb(255, 194, 207)";
+        return "#ffc2cf";
     } else {
         return "transparent";
     }
 }
 
-const showTask = (task, project) => {
+function showTask(task) {
     const taskDiv = document.createElement("button");
     taskDiv.classList.add("task");
 
@@ -87,7 +90,6 @@ const showTask = (task, project) => {
     });
 
     const taskCircle = document.createElement("button");
-    taskCircle.textContent = "";
     taskCircle.classList.add("circle");
 
     taskCircle.addEventListener("click", (event) => {
@@ -120,21 +122,14 @@ const showTask = (task, project) => {
     flagElement.setAttribute("fill", getFlagColor(task.getPriority()));
     taskFlag.classList.add("flag-icon");
 
-    const taskTrash = document.createElement("button");
-    const trashIcon = document.createElement("img");
-    trashIcon.src = Trash;
-    taskTrash.appendChild(trashIcon);
-    taskTrash.classList.add("trash-icon");
+    const taskTrash = createIcon("trash-icon", Trash);
 
-    if (project.getTitle() === "all" || project.getTitle() === "important") {
-        taskTrash.style.display = "none";
-    } else {
-        taskTrash.addEventListener("click", (event) => {
-            event.stopPropagation();
-            project.removeTask(task);
-            renderMain(project.getTitle());
-        });
-    }
+    taskTrash.addEventListener("click", (event) => {
+        event.stopPropagation();
+        const project = task.getProject();
+        project.removeTask(task);
+        renderMain(project.getTitle());
+    });
 
     if (task.getCompleted() === true) {
         taskDiv.style.textDecoration = "line-through";
@@ -144,7 +139,7 @@ const showTask = (task, project) => {
     return taskDiv;
 }
 
-const showTaskDetails = (task) => {
+function showTaskDetails(task) {
     const taskDetails = document.createElement("dialog");
     taskDetails.style.width = "370px";
     taskDetails.innerHTML = `
@@ -165,60 +160,55 @@ const showTaskDetails = (task) => {
     document.addEventListener("click", closeTaskDetails);
 }
 
-const toggleOptions = () => {
+function toggleOptions() {
     const options = document.querySelector(".options");
     const computedStyle = window.getComputedStyle(options);
     options.style.display = computedStyle.display === "none" ? "block" : "none";
 }
 
-const closeOptions = () => {
+function closeOptions() {
     document.querySelector(".options").style.display = "none";
 }
 
-const renderMain = (projectTitle) => {
+function renderMain(projectTitle) {
     const main = document.querySelector("main");
-    const project = hannah.getProject(projectTitle);
+    const project = profile.getProject(projectTitle);
 
     const mainHeaderDiv = document.querySelector(".main-header");
-    const mainHeader = main.querySelector("h1");
+    const mainHeader = mainHeaderDiv.querySelector("h1");
+    mainHeader.textContent = projectTitle;
     mainHeader.style.color = "black";
-    const ellipsisButton = mainHeaderDiv.querySelector(".ellipsis-icon");
+
+    const ellipsisButton = document.querySelector(".ellipsis-icon");
+    const ellipsisIcon = document.createElement("img");
+    ellipsisIcon.src = Ellipsis;
+    ellipsisButton.textContent = "";
+    ellipsisButton.appendChild(ellipsisIcon);
     ellipsisButton.style.display = "none";
 
-    if (projectTitle === "important") {
-        mainHeader.textContent = "important";
-    } else if (projectTitle === "all") {
-        mainHeader.textContent = "all";
-    } else {
+    if (projectTitle !== "important" && projectTitle !== "all") {
         mainHeader.style.color = project.getColor();
-        mainHeader.textContent = projectTitle;
-
         ellipsisButton.style.display = "block";
-        ellipsisButton.textContent = "";
-        const ellipsisIcon = document.createElement("img");
-        ellipsisIcon.src = Ellipsis;
-        ellipsisButton.appendChild(ellipsisIcon);
-
         ellipsisButton.addEventListener("click", toggleOptions);
-
-        const edit = mainHeaderDiv.querySelector(".edit");
-        edit.addEventListener("click", () => {
-            modal.openModal();
-            modal.showProjectForm();
-            document.querySelector("#title").value = project.getTitle();
-            document.querySelector("#color").value = project.getColor();
-
-            const submitButton = document.querySelector("#submit");
-            submitButton.textContent = "edit";
-
-            closeOptions();
-        });
     }
 
-    const del = mainHeaderDiv.querySelector(".del");
-    del.addEventListener("click", () => {
-        hannah.removeProject(project);
-        renderSidebar();
+    // const edit = main.querySelector(".edit");
+    // edit.addEventListener("click", () => {
+    //     modal.openModal();
+    //     modal.showProjectForm();
+    //     document.querySelector("#title").value = project.getTitle();
+    //     document.querySelector("#color").value = project.getColor();
+
+    //     const submitButton = document.querySelector("#submit");
+    //     submitButton.textContent = "edit";
+
+    //     closeOptions();
+    // });
+
+    const del = main.querySelector(".del");
+    del.addEventListener("click", (event) => {
+        profile.removeProject(selectedProject);
+        renderProjects();
         renderMain("all");
         closeOptions();
     });
@@ -226,28 +216,19 @@ const renderMain = (projectTitle) => {
     const tasks = main.querySelector(".tasks");
     tasks.textContent = "";
 
-    const allProjects = hannah.getAllProjects();
+    const allProjects = profile.getAllProjects()
+    const allTasks = allProjects.flatMap(project => project.getTasks());
 
-    // render tasks based on selected project
-    if (projectTitle === "" || projectTitle == "all") {
-        allProjects.forEach((project) => {
-            project.getTasks().forEach((task) => {
-                tasks.appendChild(showTask(task, project));
-            });
-        });
-    } else if (projectTitle == "important") {
-        allProjects.forEach((project) => {
-            project.getTasks().forEach((task) => {
-                if (task.getPriority() == "high") {
-                    tasks.appendChild(showTask(task, project));
-                }
-            });
-        });
-    } else { // render all tasks
-        project.getTasks().forEach((task) => {
-            tasks.appendChild(showTask(task, project));
-        });
-    };
+    const tasksToShow = () => {
+        if (projectTitle === "all") {
+            return allTasks;
+        } else if (projectTitle == "important") {
+            return allTasks.filter((task) => task.getPriority() == "high");
+        } else {
+            return project.getTasks();
+        };
+    }
+    tasksToShow().forEach((task) => tasks.appendChild(showTask(task)));
 
     const addTaskButton = main.querySelector(".addTaskButton");
     addTaskButton.addEventListener("click", () => {
@@ -260,4 +241,4 @@ modal.cancelButton.addEventListener("click", () => {
     modal.closeModal();
 });
 
-export { renderSidebar, renderMain, selectedProject };
+export { renderSidebar, renderProjects, renderMain, selectedProject };

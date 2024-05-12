@@ -1,4 +1,4 @@
-export class Profile {
+class Profile {
     constructor() {
         this.allProjects = [];
     }
@@ -12,12 +12,12 @@ export class Profile {
         this.allProjects.push(project);
     }
 
-    removeProject(project) {
-        this.allProjects = this.allProjects.filter(p => p !== project);
+    removeProject(projectTitle) {
+        this.allProjects = this.allProjects.filter(project => project.getTitle() !== projectTitle);
     }
 }
 
-export class Project {
+class Project {
     constructor(title, color) {
         this.title = title;
         this.color = color;
@@ -38,3 +38,5 @@ export class Project {
         this.tasks = this.tasks.filter(t => t !== task);
     }
 }
+
+export { Profile, Project };

@@ -1,7 +1,7 @@
-import { renderProjects, renderMain, selectedProject } from "./dom.js"
+import { profile, localToday } from "./index.js"
+import { renderProjects, renderMain, submitButton } from "./dom.js"
 import Task from "./tasks.js"
 import { Project } from "./projects.js"
-import { profile, localToday } from "./index.js"
 
 class Modal {
     constructor() {
@@ -42,11 +42,17 @@ class Modal {
 
     handleSubmit(event) {
         event.preventDefault();
-        if (this.projectSpecificDiv.style.display === "block") {
-            this.addProject();
-        } else if (this.taskSpecificDiv.style.display === "block") {
-            this.addTask();
+        
+        if (submitButton.textContent === "add") {
+            if (this.projectSpecificDiv.style.display === "block") {
+                this.addProject();
+            } else {
+                this.addTask();
+            }
+        } else {
+            this.editProject();
         }
+        
     }
 
     addProject() {
@@ -68,24 +74,27 @@ class Modal {
         const description = this.description.value;
         const dueDate = this.dueDate.value ? this.dueDate.value : localToday;
         const priority = this.priority.value;
-        const project = profile.getProject(selectedProject);
+
+        let projectTitle = document.querySelector("#main-title").textContent;
+        let project = profile.getProject(projectTitle);
 
         const newTask = new Task(title, description, dueDate, priority, project);
         project.addTask(newTask);
 
-        renderMain(selectedProject);
+        renderMain(projectTitle);
         this.closeModal();
     }
 
     editProject() {
-        const projectTitle = document.querySelector("#main-title").textContent;
-        const project = profile.getProject(projectTitle);
+        let projectTitle = document.querySelector("#main-title").textContent;
+        let project = profile.getProject(projectTitle);
 
         const title = this.title.value;
         const color = this.color.value;
         project.setTitle(title);
         project.setColor(color);
 
+        console.log(`project title: ${project.getTitle()} color: ${project.getColor()}`);
         renderProjects();
         renderMain(title);
         this.closeModal();

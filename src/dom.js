@@ -7,6 +7,7 @@ import Ellipsis from "./img/ellipsis.svg"
 
 const modal = new Modal();
 let selectedProject = "personal";
+let submitButton = document.querySelector("#submit");
 
 function formatDate(date) {
     return format(date, "LLL dd");
@@ -38,6 +39,7 @@ function renderSidebar() {
     const addProjectButton = createIcon("plus-icon", Plus);
 
     addProjectButton.addEventListener("click", () => {
+        submitButton.textContent = "add";
         modal.openModal();
         modal.showProjectForm();
     });
@@ -186,27 +188,36 @@ function renderMain(projectTitle) {
     ellipsisButton.appendChild(ellipsisIcon);
     ellipsisButton.style.display = "none";
 
-    if (projectTitle !== "important" && projectTitle !== "all") {
+    const addTaskButton = main.querySelector(".addTaskButton");
+
+    if (projectTitle === "important" || projectTitle === "all") {
+        addTaskButton.style.display = "none";        
+    } else {
         mainHeader.style.color = project.getColor();
         ellipsisButton.style.display = "block";
         ellipsisButton.addEventListener("click", toggleOptions);
+        
+        addTaskButton.style.display = "block";
+        addTaskButton.addEventListener("click", () => {
+            submitButton.textContent = "add";
+            modal.openModal();
+            modal.showTaskForm();
+        });
     }
 
-    // const edit = main.querySelector(".edit");
-    // edit.addEventListener("click", () => {
-    //     modal.openModal();
-    //     modal.showProjectForm();
-    //     document.querySelector("#title").value = project.getTitle();
-    //     document.querySelector("#color").value = project.getColor();
+    const edit = main.querySelector(".edit");
+    edit.addEventListener("click", () => {
+        submitButton.textContent = "edit";
 
-    //     const submitButton = document.querySelector("#submit");
-    //     submitButton.textContent = "edit";
-
-    //     closeOptions();
-    // });
+        modal.openModal();
+        modal.showProjectForm();
+        document.querySelector("#title").value = project.getTitle();
+        document.querySelector("#color").value = project.getColor();
+        closeOptions();
+    });
 
     const del = main.querySelector(".del");
-    del.addEventListener("click", (event) => {
+    del.addEventListener("click", () => {
         profile.removeProject(selectedProject);
         renderProjects();
         renderMain("all");
@@ -229,16 +240,10 @@ function renderMain(projectTitle) {
         };
     }
     tasksToShow().forEach((task) => tasks.appendChild(showTask(task)));
-
-    const addTaskButton = main.querySelector(".addTaskButton");
-    addTaskButton.addEventListener("click", () => {
-        modal.openModal();
-        modal.showTaskForm();
-    });
 }
 
 modal.cancelButton.addEventListener("click", () => {
     modal.closeModal();
 });
 
-export { renderSidebar, renderProjects, renderMain, selectedProject };
+export { renderSidebar, renderProjects, renderMain, submitButton };

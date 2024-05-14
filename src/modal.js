@@ -1,5 +1,5 @@
 import { profile, localToday } from "./index.js"
-import { renderProjects, renderMain, submitButton } from "./dom.js"
+import { renderProjects, renderMain, submitButton, selectedTask } from "./dom.js"
 import Task from "./tasks.js"
 import { Project } from "./projects.js"
 
@@ -50,7 +50,11 @@ class Modal {
                 this.addTask();
             }
         } else {
-            this.editProject();
+            if (this.projectSpecificDiv.style.display === "block") {
+                this.editProject();
+            } else {
+                this.editTask();
+            }
         }
         
     }
@@ -58,10 +62,7 @@ class Modal {
     addProject() {
         const title = this.title.value;
         const color = this.color.value;
-        if (!title || !color) {
-            console.log("can't create empty project");
-            return;
-        }
+
         const newProject = new Project(title, color);
         profile.addProject(newProject);
 
@@ -94,9 +95,28 @@ class Modal {
         project.setTitle(title);
         project.setColor(color);
 
-        console.log(`project title: ${project.getTitle()} color: ${project.getColor()}`);
         renderProjects();
         renderMain(title);
+        this.closeModal();
+    }
+
+    editTask() {
+        let pageTitle = document.querySelector("#main-title").textContent;
+
+        const allTasks = profile.getAllTasks();
+        let task = allTasks.find(t => t.getTitle() == selectedTask);
+
+        const title = this.title.value;
+        const description = this.description.value;
+        const dueDate = this.dueDate.value;
+        const priority = this.priority.value;
+
+        task.setTitle(title);
+        task.setDescription(description);
+        task.setDueDate(dueDate);
+        task.setPriority(priority);
+
+        renderMain(pageTitle);
         this.closeModal();
     }
 }

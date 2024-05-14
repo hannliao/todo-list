@@ -180,7 +180,7 @@ body {
     padding: 6px 0;
     font-size: 14px;
     position: absolute;
-    right: 200px;
+    right: 170px;
     color: var(--font-gray);
     background-color: var(--bg-gray);
     border: 1px solid var(--border-gray);
@@ -191,9 +191,15 @@ body {
     width: 25px;
     height: 25px;
     position: absolute;
-    right: 150px;
+    right: 130px;
 }
 
+.edit-icon {
+    position: relative;
+    right: 10px;
+}
+
+.edit-icon, 
 .trash-icon {
     width: 25px;
     height: 25px;
@@ -202,11 +208,13 @@ body {
     display: none;
 }
 
+.edit-icon:hover, 
 .trash-icon:hover {
     width: 27px;
     height: 27px;
 }
 
+.task:hover .edit-icon, 
 .task:hover .trash-icon{
     display: block;
 }

@@ -4,9 +4,11 @@ import Modal from "./modal.js"
 import Trash from "./img/trash-outline.svg"
 import Plus from "./img/add.svg"
 import Ellipsis from "./img/ellipsis.svg"
+import Edit from "./img/edit.svg"
 
 const modal = new Modal();
 let selectedProject = "personal";
+let selectedTask = "";
 let submitButton = document.querySelector("#submit");
 
 function formatDate(date) {
@@ -124,20 +126,34 @@ function showTask(task) {
     flagElement.setAttribute("fill", getFlagColor(task.getPriority()));
     taskFlag.classList.add("flag-icon");
 
-    const taskTrash = createIcon("trash-icon", Trash);
+    const taskEdit = createIcon("edit-icon", Edit);
+    taskEdit.addEventListener("click", (event) => {
+        event.stopPropagation();
+        submitButton.textContent = "edit";
+        selectedTask = task.getTitle();
 
+        modal.openModal();
+        modal.showTaskForm();
+        document.querySelector("#title").value = task.getTitle();
+        document.querySelector("#description").value = task.getDescription();
+        document.querySelector("#dueDate").value = task.getDueDate();
+        document.querySelector("#priority").value = task.getPriority();
+    })
+
+    const taskTrash = createIcon("trash-icon", Trash);
     taskTrash.addEventListener("click", (event) => {
         event.stopPropagation();
         const project = task.getProject();
         project.removeTask(task);
-        renderMain(project.getTitle());
+        const pageTitle = document.querySelector("#main-title").textContent;
+        renderMain(pageTitle);
     });
 
     if (task.getCompleted() === true) {
         taskDiv.style.textDecoration = "line-through";
     }
 
-    taskDiv.append(taskCircle, taskTitle, taskDate, taskFlag, taskTrash);
+    taskDiv.append(taskCircle, taskTitle, taskDate, taskFlag, taskEdit, taskTrash);
     return taskDiv;
 }
 
@@ -172,13 +188,13 @@ function closeOptions() {
     document.querySelector(".options").style.display = "none";
 }
 
-function renderMain(projectTitle) {
+function renderMain(pageTitle) {
     const main = document.querySelector("main");
-    const project = profile.getProject(projectTitle);
+    const project = profile.getProject(pageTitle);
 
     const mainHeaderDiv = document.querySelector(".main-header");
     const mainHeader = mainHeaderDiv.querySelector("h1");
-    mainHeader.textContent = projectTitle;
+    mainHeader.textContent = pageTitle;
     mainHeader.style.color = "black";
 
     const ellipsisButton = document.querySelector(".ellipsis-icon");
@@ -190,13 +206,13 @@ function renderMain(projectTitle) {
 
     const addTaskButton = main.querySelector(".addTaskButton");
 
-    if (projectTitle === "important" || projectTitle === "all") {
-        addTaskButton.style.display = "none";        
+    if (pageTitle === "important" || pageTitle === "all") {
+        addTaskButton.style.display = "none";
     } else {
         mainHeader.style.color = project.getColor();
         ellipsisButton.style.display = "block";
         ellipsisButton.addEventListener("click", toggleOptions);
-        
+
         addTaskButton.style.display = "block";
         addTaskButton.addEventListener("click", () => {
             submitButton.textContent = "add";
@@ -227,13 +243,12 @@ function renderMain(projectTitle) {
     const tasks = main.querySelector(".tasks");
     tasks.textContent = "";
 
-    const allProjects = profile.getAllProjects()
-    const allTasks = allProjects.flatMap(project => project.getTasks());
+    const allTasks = profile.getAllTasks();
 
     const tasksToShow = () => {
-        if (projectTitle === "all") {
+        if (pageTitle === "all") {
             return allTasks;
-        } else if (projectTitle == "important") {
+        } else if (pageTitle == "important") {
             return allTasks.filter((task) => task.getPriority() == "high");
         } else {
             return project.getTasks();
@@ -246,4 +261,4 @@ modal.cancelButton.addEventListener("click", () => {
     modal.closeModal();
 });
 
-export { renderSidebar, renderProjects, renderMain, submitButton };
+export { renderSidebar, renderProjects, renderMain, submitButton, selectedTask };

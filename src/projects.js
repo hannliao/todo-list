@@ -4,9 +4,10 @@ class Profile {
     }
 
     getAllProjects = () => this.allProjects;
-    getProject = (title) => {
-        return this.allProjects.find(p => p.getTitle() == title);
-    }
+
+    getProject = (title) => this.allProjects.find(p => p.getTitle() == title);
+
+    getAllTasks = () => this.allProjects.flatMap(project => project.getTasks());
 
     addProject(project) {
         this.allProjects.push(project);
@@ -36,6 +37,10 @@ class Project {
 
     removeTask(task) {
         this.tasks = this.tasks.filter(t => t !== task);
+    }
+
+    findTask(taskTitle) {
+        return this.tasks.find(t => t.getTitle() == taskTitle);
     }
 }
 

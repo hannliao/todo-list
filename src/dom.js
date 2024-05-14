@@ -90,6 +90,7 @@ function showTask(task) {
     taskDiv.classList.add("task");
 
     taskDiv.addEventListener("click", (event) => {
+        event.stopPropagation();
         showTaskDetails(task);
     });
 
@@ -158,24 +159,24 @@ function showTask(task) {
 }
 
 function showTaskDetails(task) {
-    const taskDetails = document.createElement("dialog");
-    taskDetails.style.width = "370px";
+    const taskDetails = document.querySelector(".task-details");
     taskDetails.innerHTML = `
         <strong>${task.getTitle()}</strong> <br><br>
         ${task.getDescription()} <br><br>
         due date: ${formatDate(task.getDueDate())} &emsp;&emsp; priority: ${task.getPriority()}
     `;
 
-    document.body.appendChild(taskDetails);
-    taskDetails.showModal();
+    const overlay = document.querySelector(".overlay");
+    overlay.classList.remove("hidden");
+    taskDetails.classList.remove("hidden");
 
     const closeTaskDetails = (event) => {
-        if (taskDetails.contains(event.target)) {
-            taskDetails.close();
-            document.removeEventListener("click", closeTaskDetails);
+        if (!taskDetails.contains(event.target)) {
+            taskDetails.classList.add("hidden");
+            overlay.classList.add("hidden");
         }
     };
-    document.addEventListener("click", closeTaskDetails);
+    overlay.addEventListener("click", closeTaskDetails);
 }
 
 function toggleOptions() {

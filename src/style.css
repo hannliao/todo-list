@@ -228,6 +228,27 @@ body {
     color: var(--font-gray);
 }
 
+.task-details {
+    width: 370px;
+    z-index: 2;
+    background-color: white;
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.2);
+    z-index: 1;
+}
+
+.hidden {
+    display: none;
+}
+
+.task-details,
 dialog {
     position: fixed;
     top: 50%;

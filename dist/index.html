@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todos</title>
+<script defer src="bundle.js"></script></head>
+
+<body>
+    <div id="header">
+        <h1>to-do list</h1>
+    </div>
+
+    <div id="sidebar">
+        <h2>view</h2>
+        <button>all</button>
+        <button>important</button>
+        <div class="projects-header">
+            <h2>projects</h2>
+        </div>
+        <div class="projects"></div>
+    </div>
+
+    <main id="main">
+        <div class="main-header">
+            <h1 id="main-title"></h1>
+            <div class="more-options">
+                <button class="ellipsis-icon"></button>
+                <div class="options">
+                    <button class="edit">edit</button>
+                    <button class="del">delete</button>
+                </div>
+            </div>
+        </div>
+        <div class="tasks"></div>
+        <button class="addTaskButton">+ add task</button>
+    </main>
+
+    <div class="task-details hidden"></div>
+    <div class="overlay hidden"></div>
+
+    <dialog class="modal">
+        <div id="modal">
+            <div id="modal-header"></div>
+            <form id="form" action="dialog">
+                <div class="form-row">
+                    <label for="title"></label>
+                    <input type="text" id="title" placeholder="title" minlength="1" maxlength="50" required>
+                </div>
+                <div id="project-specific">
+                    <div class="form-row">
+                        <label for="color">select project color</label>
+                        <input type="color" id="color" value="#000000">
+                    </div>
+                </div>
+                <div id="task-specific">
+                    <div class="form-row">
+                        <label for="description"></label>
+                        <textarea id="description" placeholder="description" rows="3" cols="50" maxlength="150"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div>
+                            <label for="priority">priority</label>
+                            <select id="priority">
+                                <option value="high">high</option>
+                                <option value="medium">medium</option>
+                                <option value="low" selected>low</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="dueDate">due date</label>
+                            <input type="date" id="dueDate">
+                        </div>
+
+                    </div>
+                </div>
+                <div class="form-row buttons">
+                    <button type="button" id="cancel">cancel</button>
+                    <button type="submit" id="submit">add</button>
+                </div>
+            </form>
+        </div>
+    </dialog>
+
+</body>
+
+</html>

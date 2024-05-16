@@ -8,7 +8,7 @@ function initializeProjects() {
         const groceries = new Project("groceries", "#568e40");
         const travel = new Project("travel", "#3b92d5");
 
-        const personalTask1 = new Task("shop for socks", "need new running socks (feetures elite ultra light size M", "medium");
+        const personalTask1 = new Task("shop for socks", "need new running socks (feetures elite ultra light size M)", "medium");
         const groceriesTask1 = new Task("finish milk in fridge", "before it expires", "high", "2024-05-09");
         const groceriesTask2 = new Task("prep strawberries", "wash thoroughly, brunoise, and add honey so that they can be added to matcha lattes", "medium");
         const groceriesTask3 = new Task("buy manchego and prosciutto", "trader joe's", "low");
@@ -22,9 +22,9 @@ function initializeProjects() {
         travel.addTask(travelTask1);
         travel.addTask(travelTask2);
 
-        this.addProject(personal);
-        this.addProject(groceries);
-        this.addProject(travel);
+        projects.addProject(personal);
+        projects.addProject(groceries);
+        projects.addProject(travel);
     } else {
         // get local storage
         let savedProjects = JSON.parse(localStorage.getItem("projects"));

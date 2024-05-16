@@ -1,7 +1,15 @@
-import { profile, localToday } from "./index.js"
 import { renderProjects, renderMain, submitButton, selectedTask } from "./dom.js"
 import Task from "./tasks.js"
-import { Project } from "./projects.js"
+import { projects, Project } from "./projects.js"
+
+// set minimum due date to today's local date
+const getLocalToday = () => {
+    const localDateTime = new Date();
+    const localDate = localDateTime.toISOString().split("T")[0];
+    return localDate;
+}
+const localToday = getLocalToday();
+document.getElementById("dueDate").setAttribute("min", localToday);
 
 class Modal {
     constructor() {
@@ -42,7 +50,7 @@ class Modal {
 
     handleSubmit(event) {
         event.preventDefault();
-        
+
         if (submitButton.textContent === "add") {
             if (this.projectSpecificDiv.style.display === "block") {
                 this.addProject();
@@ -56,7 +64,7 @@ class Modal {
                 this.editTask();
             }
         }
-        
+        this.closeModal();
     }
 
     addProject() {
@@ -64,31 +72,29 @@ class Modal {
         const color = this.color.value;
 
         const newProject = new Project(title, color);
-        profile.addProject(newProject);
+        projects.addProject(newProject);
 
         renderProjects();
-        this.closeModal();
     }
 
     addTask() {
         const title = this.title.value;
         const description = this.description.value;
-        const dueDate = this.dueDate.value ? this.dueDate.value : localToday;
+        const dueDate = this.dueDate.value ? this.dueDate.value : null;
         const priority = this.priority.value;
 
         let projectTitle = document.querySelector("#main-title").textContent;
-        let project = profile.getProject(projectTitle);
+        let project = projects.getProject(projectTitle);
 
-        const newTask = new Task(title, description, dueDate, priority, project);
+        const newTask = new Task(title, description, priority, dueDate);
         project.addTask(newTask);
 
         renderMain(projectTitle);
-        this.closeModal();
     }
 
     editProject() {
         let projectTitle = document.querySelector("#main-title").textContent;
-        let project = profile.getProject(projectTitle);
+        let project = projects.getProject(projectTitle);
 
         const title = this.title.value;
         const color = this.color.value;
@@ -97,13 +103,12 @@ class Modal {
 
         renderProjects();
         renderMain(title);
-        this.closeModal();
     }
 
     editTask() {
         let pageTitle = document.querySelector("#main-title").textContent;
 
-        const allTasks = profile.getAllTasks();
+        const allTasks = projects.allProjects.flatMap(project => project.getTasks());
         let task = allTasks.find(t => t.getTitle() == selectedTask);
 
         const title = this.title.value;
@@ -117,7 +122,6 @@ class Modal {
         task.setPriority(priority);
 
         renderMain(pageTitle);
-        this.closeModal();
     }
 }
 

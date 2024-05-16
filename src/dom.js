@@ -1,5 +1,5 @@
 import { format } from "date-fns"
-import { profile } from "./index.js"
+import { projects } from "./projects.js"
 import Modal from "./modal.js"
 import Trash from "./img/trash-outline.svg"
 import Plus from "./img/add.svg"
@@ -7,7 +7,6 @@ import Ellipsis from "./img/ellipsis.svg"
 import Edit from "./img/edit.svg"
 
 const modal = new Modal();
-let selectedProject = "personal";
 let selectedTask = "";
 let submitButton = document.querySelector("#submit");
 
@@ -52,25 +51,37 @@ function renderSidebar() {
 }
 
 function renderProjects() {
-    const projects = document.querySelector(".projects");
-    projects.textContent = "";
+    const projectsDiv = document.querySelector(".projects");
+    projectsDiv.textContent = "";
 
     const projectButtons = [];
 
-    for (const p of profile.getAllProjects()) {
+    projects.allProjects.forEach((project) => {
         const projectButton = document.createElement("button");
-        projectButton.textContent = p.getTitle();
-        projectButton.style.color = p.getColor();
+        projectButton.textContent = project.getTitle();
+        projectButton.style.color = project.color;
 
-        projects.appendChild(projectButton);
+        projectsDiv.appendChild(projectButton);
         projectButtons.push(projectButton);
-    }
+    });
     projectButtons.forEach((button) => {
         button.addEventListener("click", () => {
             const buttonText = button.textContent;
             renderMain(buttonText);
-            selectedProject = buttonText;
             closeOptions();
+        });
+    });
+
+    setProjectIndices();
+    projects.saveProjects();
+}
+
+function setProjectIndices() {
+    projects.allProjects.forEach((project, index) => {
+        project.setIndex(index);
+
+        project.tasks.forEach((task) => {
+            task.setProjectIndex(index);
         });
     });
 }
@@ -113,8 +124,11 @@ function showTask(task) {
     taskTitle.classList.add("task-text");
 
     const taskDate = document.createElement("div");
-    taskDate.textContent = formatDate(task.getDueDate());
+    taskDate.textContent = task.getDueDate() ? formatDate(task.getDueDate()) : "";
     taskDate.classList.add("task-date");
+    if (!taskDate.textContent) {
+        taskDate.classList.add("hidden");
+    }
 
     const svgFlag = `<svg id="flag" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
         <path d="M80 480a16 16 0 01-16-16V68.13a24 24 0 0111.9-20.72C88 40.38 112.38 32 160 32c37.21 0 78.83 14.71 115.55 27.68C305.12 
@@ -144,8 +158,10 @@ function showTask(task) {
     const taskTrash = createIcon("trash-icon", Trash);
     taskTrash.addEventListener("click", (event) => {
         event.stopPropagation();
-        const project = task.getProject();
+
+        const project = projects.getProjectByIndex(task.getProjectIndex());
         project.removeTask(task);
+
         const pageTitle = document.querySelector("#main-title").textContent;
         renderMain(pageTitle);
     });
@@ -163,8 +179,11 @@ function showTaskDetails(task) {
     taskDetails.innerHTML = `
         <strong>${task.getTitle()}</strong> <br><br>
         ${task.getDescription()} <br><br>
-        due date: ${formatDate(task.getDueDate())} &emsp;&emsp; priority: ${task.getPriority()}
+        priority: ${task.getPriority()}
     `;
+    if (task.getDueDate()) {
+        taskDetails.innerHTML += `&emsp;&emsp; due date: ${formatDate(task.getDueDate())}`;
+    }
 
     const overlay = document.querySelector(".overlay");
     overlay.classList.remove("hidden");
@@ -191,7 +210,7 @@ function closeOptions() {
 
 function renderMain(pageTitle) {
     const main = document.querySelector("main");
-    const project = profile.getProject(pageTitle);
+    const project = projects.getProject(pageTitle);
 
     const mainHeaderDiv = document.querySelector(".main-header");
     const mainHeader = mainHeaderDiv.querySelector("h1");
@@ -223,7 +242,8 @@ function renderMain(pageTitle) {
     }
 
     const edit = main.querySelector(".edit");
-    edit.addEventListener("click", () => {
+    edit.addEventListener("click", (event) => {
+        event.stopPropagation();
         submitButton.textContent = "edit";
 
         modal.openModal();
@@ -234,8 +254,13 @@ function renderMain(pageTitle) {
     });
 
     const del = main.querySelector(".del");
-    del.addEventListener("click", () => {
-        profile.removeProject(selectedProject);
+    del.addEventListener("click", (event) => {
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+
+        const projectTitle = document.querySelector("#main-title").textContent;
+        projects.removeProject(projectTitle);
+
         renderProjects();
         renderMain("all");
         closeOptions();
@@ -244,7 +269,7 @@ function renderMain(pageTitle) {
     const tasks = main.querySelector(".tasks");
     tasks.textContent = "";
 
-    const allTasks = profile.getAllTasks();
+    const allTasks = projects.getAllTasks();
 
     const tasksToShow = () => {
         if (pageTitle === "all") {
@@ -256,6 +281,7 @@ function renderMain(pageTitle) {
         };
     }
     tasksToShow().forEach((task) => tasks.appendChild(showTask(task)));
+    projects.saveProjects();
 }
 
 modal.cancelButton.addEventListener("click", () => {

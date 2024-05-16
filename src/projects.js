@@ -1,35 +1,47 @@
-class Profile {
-    constructor() {
-        this.allProjects = [];
-    }
-
-    getAllProjects = () => this.allProjects;
-
-    getProject = (title) => this.allProjects.find(p => p.getTitle() == title);
-
-    getAllTasks = () => this.allProjects.flatMap(project => project.getTasks());
+const projects = {
+    allProjects: [],
 
     addProject(project) {
         this.allProjects.push(project);
-    }
+    },
 
-    removeProject(projectTitle) {
-        this.allProjects = this.allProjects.filter(project => project.getTitle() !== projectTitle);
+    removeProject(title) {
+        this.allProjects = this.allProjects.filter(project => project.getTitle() !== title);
+    },
+
+    getProject(title) {
+        return this.allProjects.find(p => p.getTitle() == title);
+    },
+
+    getProjectByIndex(index) {
+        return this.allProjects.find(p => p.getIndex() == index);
+    },
+
+    getAllTasks() {
+        return this.allProjects.flatMap(project => project.getTasks());
+    },
+
+    saveProjects() {
+        localStorage.setItem("projects", JSON.stringify(this.allProjects));
     }
 }
 
 class Project {
-    constructor(title, color) {
+    constructor(title, color, tasks = []) {
         this.title = title;
         this.color = color;
-        this.tasks = [];
+        this.tasks = tasks;
+        this.index = 0;
     }
 
     getTitle = () => this.title;
     setTitle = (title) => this.title = title;
     getColor = () => this.color;
-    setColor = (color) => this.color = color; 
+    setColor = (color) => this.color = color;
+    getIndex = () => this.index;
+    setIndex = (index) => this.index = index;
     getTasks = () => this.tasks;
+    setTasks = (tasks) => this.tasks = tasks;
 
     addTask(task) {
         this.tasks.push(task);
@@ -44,4 +56,4 @@ class Project {
     }
 }
 
-export { Profile, Project };
+export { projects, Project };
